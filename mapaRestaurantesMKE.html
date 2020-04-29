@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Restaurantes de Milwaukee</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+    <script id="myScript"></script>
+
+
+    <script>
+
+        var map;
+        var locations = [];
+        var sheetID = "1ldYUbJUI_g_eaJBkzDenMGPP_OgOkFgacU1uVcQBX3A";
+        var API_KEY = "AIzaSyA9vmrmCp0UD5HVovsn5lnLsSMLSz3m208";
+
+        function initialiseMap() {
+
+            // Load data from an example Google spreadsheet that contains latitude and longitude columns using Google Sheets API v4 that returns JSON.
+            // Replace the ID of your Google spreadsheet and you API key in the URL:
+            // https://sheets.googleapis.com/v4/spreadsheets/ID_OF_YOUR_GOOGLE_SPREADSHEET/values/Sheet1!A2:Q?key=YOUR_API_KEY
+            // Also make sure your API key is authorised to access Google Sheets API - you can enable that through your Google Developer console.
+            // Finally, in the URL, fix the sheet name and the range that you are accessing from your spreadsheet. 'Sheet1' is the default name for the first sheet.
+            var sheetURL = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetID + "/values/Sheet1!B2:K?key=" + API_KEY;
+            var restData = new Array();
+            var iterator = 0;
+
+            var mapOptions = {
+                zoom: 12,
+                center: new google.maps.LatLng(43.0389, -87.9065)
+            };
+            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            var bounds = new google.maps.LatLngBounds();
+            var pattern = /^((http|https|ftp):\/\/)/;
+
+            $.getJSON(sheetURL, function (data) {
+                // data.values contains the array of rows from the spreadsheet. Each row is also an array of cell values.
+                // Modify the code below to suit the structure of your spreadsheet.
+                $(data.values).each(function () {
+                    var location = {};
+                    location.email = this[0];
+                    location.name = this[1];
+                    location.address = this[2];
+                    location.phone = this[3];
+                    location.openTime = this[4];
+                    location.closeTime = this[5];
+                    location.openDays = this[6];
+                    location.url = this[7];
+                    if (!pattern.test(location.url)) {
+                        location.url = "http://" + location.url;
+                    }
+                    location.latitude = parseFloat(this[8]);
+                    location.longitude = parseFloat(this[9]);
+                    locations.push(location);
+                });
+                if (locations.length > 0) {
+                    setLocations(map, bounds, locations);
+                }
+            });
+        }
+
+        function setLocations(map, bounds, locations) {
+            // var bounds = new google.maps.LatLngBounds();
+            // Create nice, customised pop-up boxes, to appear when the marker is clicked on
+            var infowindow = new google.maps.InfoWindow({
+                content: "Content String"
+            });
+            for (var i = 0; i < locations.length; i++) {
+                if (isNaN(locations[i].latitude) == false) {
+                    var new_marker = createMarker(map, locations[i], infowindow);
+                    bounds.extend(new_marker.position);
+                }
+            }
+            map.fitBounds(bounds);
+        }
+
+        function createMarker(map, location, infowindow) {
+
+            // Modify the code below to suit the structure of your spreadsheet (stored in variable 'location')
+            var position = {
+                lat: parseFloat(location.latitude),
+                lng: parseFloat(location.longitude)
+            };
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                name: location.name,
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                infowindow.setContent('<div>' +
+                    '<p><strong>' + ((location.url === undefined) ? location.name : ('<a href="' + location.url + '">' + location.name + '</a>')) + '</strong></p>' +
+                    ((location.address === undefined) ? "" : ('<p><strong>Dirección: </strong>' + location.address + '</p>')) +
+                    ((location.phone === undefined) ? "" : ('<p><strong>Teléfono: </strong>' + location.phone + '</p>')) +
+                    ((location.url === undefined) ? "" : ('<p><strong>Página web: </strong>' + ('<a href="' + location.url + '">' + location.url + '</a>') + '</p>')) +
+                    ((location.openTime === undefined) ? "" : ('<p><strong>Hora de Apertura: </strong>' + location.openTime + '</p>')) +
+                    ((location.closeTime === undefined) ? "" : ('<p><strong>Hora de Cierre: </strong>' + location.closeTime + '</p>')) +
+                    ((location.openDays === undefined) ? "" : ('<p><strong>Días que Abre: </strong>' + location.openDays + '</p>')) +
+                    '</div>');
+                infowindow.open(map, marker);
+            });
+            return marker;
+        }
+
+    </script>
+
+    <script async defer>
+        document.getElementById("myScript").src = "https://maps.googleapis.com/maps/api/js?key=" + API_KEY + "&callback=initialiseMap";
+    </script>
+
+<script>
+    https://docs.google.com/spreadsheets/d/1ldYUbJUI_g_eaJBkzDenMGPP_OgOkFgacU1uVcQBX3A/htmlembed?single=true&gid=SheetID&range=D15:E15&widget=false&chrome=false&headers=false
+</script>
+
+</body>
+
+</html>

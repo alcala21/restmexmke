@@ -1,0 +1,33 @@
+% Fibonacci spiral
+% Author: Andrew Mertz
+\documentclass{standalone}
+% \documentclass[convert={density=600,outext=.png}]{standalone}
+\usepackage{amsmath,tikz}
+\usetikzlibrary{backgrounds,calc}
+\usepackage{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}%%%<
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{0pt}%
+%%%>
+\definecolor{backColor}{HTML}{1d1f21}
+\definecolor{awesome-red}{HTML}{DC3522}
+\definecolor{awesome-blue}{HTML}{22c9dc}
+\definecolor{awesome-green}{HTML}{22dc35}
+\definecolor{awesome-gold}{HTML}{dc9222}
+\definecolor{awesome-pink}{HTML}{ff007e}
+
+\colorlet{awesome-color}{awesome-pink}
+
+\begin{document}
+% I have seen many beautiful depictions of Fibonacci spirals and
+% golden spirals. So I thought it would be nice to make a Fibonacci
+% spiral in TikZ. I like the look of white on black so here I define a
+% black background rectangle.
+\begin{tikzpicture}
+  % Create some counters for holding the Fibonacci numbers
+\node  [shape=circle, text=white, fill=awesome-pink, inner sep=2pt] {\Huge \textbf M};
+\end{tikzpicture}
+\end{document}
+% LocalWords:  tikzpicture eq lr TikZ

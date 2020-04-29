@@ -1,0 +1,8 @@
+## Latex files
+latex/*
+!latex/*.tex
+
+
+# MacOS DS_Store file
+.DS_Store
+
