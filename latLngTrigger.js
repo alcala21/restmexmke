@@ -8,8 +8,8 @@ function fillLatLng(e) {
     // Set a comment on the edited cell to indicate when it was
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var addressColumn = 4;
-  var latColumn = 11;
-  var lngColumn = 12;
+  var latColumn = 12;
+  var lngColumn = 13;
   var range = e.range;
   var values = range.getValues();
   Logger.log(range.getRow());

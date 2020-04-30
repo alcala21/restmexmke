@@ -37,6 +37,14 @@
         var sheetID = "1ldYUbJUI_g_eaJBkzDenMGPP_OgOkFgacU1uVcQBX3A";
         var API_KEY = "AIzaSyA9vmrmCp0UD5HVovsn5lnLsSMLSz3m208";
 
+        var appDict = {
+            "Uber Eats": "https://www.ubereats.com/",
+            "DoorDash": "https://www.doordash.com/en-US",
+            "EatStreet": "https://eatstreet.com/",
+            "GrubHub": "https://www.grubhub.com/",
+            "Postmates": "https://postmates.com/delivery/milwaukee"
+        };
+
         function initialiseMap() {
 
             // Load data from an example Google spreadsheet that contains latitude and longitude columns using Google Sheets API v4 that returns JSON.
@@ -44,7 +52,7 @@
             // https://sheets.googleapis.com/v4/spreadsheets/ID_OF_YOUR_GOOGLE_SPREADSHEET/values/Sheet1!A2:Q?key=YOUR_API_KEY
             // Also make sure your API key is authorised to access Google Sheets API - you can enable that through your Google Developer console.
             // Finally, in the URL, fix the sheet name and the range that you are accessing from your spreadsheet. 'Sheet1' is the default name for the first sheet.
-            var sheetURL = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetID + "/values/Sheet1!B2:K?key=" + API_KEY;
+            var sheetURL = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetID + "/values/Sheet1!B2:M?key=" + API_KEY;
             var restData = new Array();
             var iterator = 0;
 
@@ -72,8 +80,11 @@
                     if (!pattern.test(location.url)) {
                         location.url = "http://" + location.url;
                     }
-                    location.latitude = parseFloat(this[8]);
-                    location.longitude = parseFloat(this[9]);
+                    location.pickup = this[8];
+                    location.delivery = this[9];
+                    location.deliveryApps = formatDeliveryApps(location.delivery, appDict);
+                    location.latitude = parseFloat(this[10]);
+                    location.longitude = parseFloat(this[11]);
                     locations.push(location);
                 });
                 if (locations.length > 0) {
@@ -112,16 +123,32 @@
             google.maps.event.addListener(marker, 'click', function () {
                 infowindow.setContent('<div>' +
                     '<p><strong>' + ((location.url === undefined) ? location.name : ('<a href="' + location.url + '">' + location.name + '</a>')) + '</strong></p>' +
-                    ((location.address === undefined) ? "" : ('<p><strong>Dirección: </strong>' + location.address + '</p>')) +
+                    ((location.address === undefined) ? "" : ('<p><strong>Dirección: </strong>' + location.address + '</p>')    ) +
                     ((location.phone === undefined) ? "" : ('<p><strong>Teléfono: </strong>' + location.phone + '</p>')) +
                     ((location.url === undefined) ? "" : ('<p><strong>Página web: </strong>' + ('<a href="' + location.url + '">' + location.url + '</a>') + '</p>')) +
                     ((location.openTime === undefined) ? "" : ('<p><strong>Hora de Apertura: </strong>' + location.openTime + '</p>')) +
                     ((location.closeTime === undefined) ? "" : ('<p><strong>Hora de Cierre: </strong>' + location.closeTime + '</p>')) +
                     ((location.openDays === undefined) ? "" : ('<p><strong>Días que Abre: </strong>' + location.openDays + '</p>')) +
+                    ((location.pickup === undefined) ? "" : ('<p><strong>Pickup/Comida para llevar: </strong>' + location.pickup + '</p>')) +
+                    ((location.delivery === undefined) ? "" : ('<p><strong>Delivery/Entrega a domicilio: </strong>' + location.deliveryApps + '</p>')) +
                     '</div>');
                 infowindow.open(map, marker);
             });
             return marker;
+        }
+
+        function formatDeliveryApps(delivery, appDict) {
+            apps = delivery.split(",").map(function (item) { return item.trim(); });
+            out = '<ul style="list-style-type:none;">';
+            for (let i = 0; i < apps.length; i++) {
+                if (appDict[apps[i]]== null) {
+                    out += '<li>' + apps[i] + '</li>';
+                } else {
+                    out += '<li> <a href="' + appDict[apps[i]] + '" target="_blank">' + apps[i] + '</a> </li>';
+                }
+            }
+            out += "</ul>";
+            return out;
         }
 
     </script>
